@@ -1,5 +1,4 @@
 # nomadcoffee-app
-
  NomadCoffee Native App for instaclone-challenge
  
 ## Built with Javascript

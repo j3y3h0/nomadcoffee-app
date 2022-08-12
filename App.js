@@ -1,47 +1,84 @@
-import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import AppLoading from "expo-app-loading";
-import { StatusBar } from "expo-status-bar";
-import { Ionicons } from "@expo/vector-icons";
-import { Asset } from "expo-asset";
+import React, { useState, useEffect, useCallback } from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import MainNav from "./navigators/MainNav";
+import * as SplashScreen from "expo-splash-screen";
 import * as Font from "expo-font";
+import { Asset } from "expo-asset";
+import { Ionicons } from "@expo/vector-icons";
+import { ThemeProvider } from "styled-components/native";
+import { ApolloProvider } from "@apollo/client";
+import { tokenVar, isLoggedInVar, TOKEN, client } from "./apollo";
+import { useColorScheme } from "react-native";
+import {
+  darkTheme,
+  lightTheme,
+  navigationLightTheme,
+  navigationDarkTheme,
+} from "./styles";
 
-export default function App() {
-  const [loading, setLoading] = useState(true);
+//SplashScreen.preventAutoHideAsync();
 
-  const preload = () => {
-    const fontsToLoad = [Ionicons.font];
-    const fontPromises = fontsToLoad.map((font) => Font.loadAsync(font));
+function App() {
+  const [appIsReady, setAppIsReady] = useState(false);
+  const colorScheme = useColorScheme();
 
-    const imagesToLoad = [require("./assets/logo.png")];
-    const imagePromises = imagesToLoad.map((image) => Asset.loadAsync(image));
+  useEffect(() => {
+    async function prepare() {
+      try {
+        const token = await AsyncStorage.getItem(TOKEN);
 
-    return Promise.all([...fontPromises, ...imagePromises]);
-  };
+        if (token) {
+          isLoggedInVar(true);
+          tokenVar(token);
+        }
 
-  if (loading) {
-    return (
-      <AppLoading
-        startAsync={preload}
-        onError={console.warn}
-        onFinish={() => setLoading(false)}
-      />
-    );
+        const imagesToLoad = [
+          require("./assets/no-profile.png"),
+          require("./assets/logo-yellow.png"),
+          require("./assets/logo-white.png"),
+        ];
+        const imagePromises = imagesToLoad.map((image) =>
+          Asset.loadAsync(image)
+        );
+
+        const fontsToLoad = [Ionicons.font];
+        const fontPromises = fontsToLoad.map((font) => Font.loadAsync(font));
+
+        return Promise.all([...fontPromises, ...imagePromises]);
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setAppIsReady(true);
+      }
+    }
+
+    prepare();
+  }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (appIsReady) {
+      await SplashScreen.hideAsync();
+    }
+  }, [appIsReady]);
+
+  if (!appIsReady) {
+    return null;
   }
 
   return (
-    <View style={styles.container}>
-      <Text>Hello World.</Text>
-      <StatusBar style="auto" />
-    </View>
+    <ApolloProvider client={client}>
+      <ThemeProvider theme={colorScheme === "light" ? lightTheme : darkTheme}>
+        <NavigationContainer
+          theme={
+            colorScheme === "light" ? navigationLightTheme : navigationDarkTheme
+          }
+        >
+          <MainNav onLayout={onLayoutRootView} />
+        </NavigationContainer>
+      </ThemeProvider>
+    </ApolloProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+export default App;
