@@ -8,6 +8,7 @@ import {
 import { onError } from "@apollo/client/link/error";
 import { setContext } from "@apollo/client/link/context";
 import { createUploadLink } from "apollo-upload-client";
+import { offsetLimitPagination } from "@apollo/client/utilities";
 
 const SERVER_URL = "https://nomad-coffee-j3y3h0.herokuapp.com/graphql";
 
@@ -62,5 +63,13 @@ const uploadLink = createUploadLink({
 
 export const client = new ApolloClient({
   link: ApolloLink.from([authLink, onErrorLink, uploadLink]),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          seeCoffeeShops: offsetLimitPagination(),
+        },
+      },
+    },
+  }),
 });
