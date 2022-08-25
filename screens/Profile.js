@@ -65,7 +65,7 @@ export default function Profile({ navigation }) {
           {data?.me?.avatarUrl ? (
             <Avatar resizeMode="contain" source={{ uri: data.me.avatarUrl }} />
           ) : (
-            <DefaultAvatar />
+            <DefaultAvatar size={140} />
           )}
           <Username>{data?.me?.username}</Username>
           <Name>이름 | {data?.me?.name}</Name>

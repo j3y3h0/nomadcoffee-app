@@ -1,98 +1,61 @@
 import React from "react";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { useReactiveVar } from "@apollo/client";
+import { TouchableOpacity } from "react-native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { useNavigation } from "@react-navigation/core";
 import { Ionicons } from "@expo/vector-icons";
-import StackNavFactory from "../components/nav/StackNavFactory";
-import { isLoggedInVar } from "../apollo";
-import AuthNav from "./AuthNav";
+import Upload from "../screens/Upload";
+import TabsNav from "./TabsNav";
+import UploadNav from "./UploadNav";
 import { light } from "../shared";
 
-const Tabs = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
 export default function MainNav() {
-  const isLoggedIn = useReactiveVar(isLoggedInVar);
+  const navigation = useNavigation();
   return (
-    <Tabs.Navigator
-      screenOptions={{
-        tabBarHideOnKeyboard: true,
-        tabBarActiveTintColor: light ? "#262626" : "#ffffff",
-        tabBarInactiveTintColor: light ? "#b3b3b3" : "#e1e1e1",
-        tabBarShowLabel: false,
-        tabBarActiveBackgroundColor: light ? "#fafafa" : "#101010",
-        tabBarInactiveBackgroundColor: light ? "#fafafa" : "#101010",
-        headerStyle: {
-          width: "100%",
-          elevation: 0,
-          shadowOpacity: 0,
-          borderBottomColor: light
-            ? "rgba(0, 0, 0, 0.2)"
-            : "rgba(255, 255, 255, 0.2)",
-          backgroundColor: light ? "#FFFFFF" : "#000000",
-        },
-        headerBackTitleVisible: false,
-        headerTitle: false,
-        headerTransparent: true,
-        headerTintColor: light ? "#000000" : "#FFFFFF",
-        headerShown: false,
-      }}
-    >
-      <Tabs.Screen
-        name="HomeTab"
+    <Stack.Navigator initialRouteName="Tabs">
+      <Stack.Screen
+        name="Tabs"
         options={{
-          tabBarIcon: ({ focused, color }) => (
-            <Ionicons
-              name={focused ? "home" : "home-outline"}
-              color={color}
-              size={22}
-            />
+          headerMode: "screen",
+          headerBackTitleVisible: false,
+          headerTitle: false,
+          headerTransparent: true,
+          headerShown: false,
+        }}
+        component={TabsNav}
+      />
+      <Stack.Screen
+        name="Upload"
+        options={{
+          headerMode: "screen",
+          headerBackTitleVisible: false,
+          headerTitle: false,
+          headerTransparent: true,
+          headerShown: false,
+        }}
+        component={UploadNav}
+      />
+      <Stack.Screen
+        name="UploadForm"
+        options={{
+          title: "커피샵 생성",
+          headerTintColor: light ? "#000000" : "#ffffff",
+          headerBackTitleVisible: false,
+          headerLeft: ({ tintColor }) => (
+            <TouchableOpacity
+              style={{ marginLeft: 10 }}
+              onPress={() => {
+                navigation.navigate("Tabs");
+                navigation.navigate("Upload");
+              }}
+            >
+              <Ionicons color={tintColor} name="chevron-back" size={24} />
+            </TouchableOpacity>
           ),
         }}
-      >
-        {() => <StackNavFactory screenName="Home" />}
-      </Tabs.Screen>
-      <Tabs.Screen
-        name="SearchTab"
-        options={{
-          tabBarIcon: ({ focused, color }) => (
-            <Ionicons
-              name={focused ? "search" : "search-outline"}
-              color={color}
-              size={22}
-            />
-          ),
-        }}
-      >
-        {() => <StackNavFactory screenName="Search" />}
-      </Tabs.Screen>
-      <Tabs.Screen
-        name="ProfileTab"
-        options={{
-          ...(!isLoggedIn && {
-            headerBackTitleVisible: false,
-            headerTitle: false,
-            headerTransparent: true,
-            headerTintColor: light ? "#000000" : "#FFFFFF",
-            headerShown: false,
-          }),
-          tabBarIcon: ({ focused, color }) => (
-            <Ionicons
-              name={
-                isLoggedIn
-                  ? focused
-                    ? "person"
-                    : "person-outline"
-                  : focused
-                  ? "log-in"
-                  : "log-in-outline"
-              }
-              color={color}
-              size={isLoggedIn ? 22 : 26}
-            />
-          ),
-        }}
-      >
-        {isLoggedIn ? () => <StackNavFactory screenName="Profile" /> : AuthNav}
-      </Tabs.Screen>
-    </Tabs.Navigator>
+        component={Upload}
+      />
+    </Stack.Navigator>
   );
 }
