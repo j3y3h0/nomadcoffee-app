@@ -6,6 +6,7 @@ import * as SplashScreen from "expo-splash-screen";
 import * as Font from "expo-font";
 import { Asset } from "expo-asset";
 import { Ionicons } from "@expo/vector-icons";
+import { StatusBar } from "expo-status-bar";
 import { ThemeProvider } from "styled-components/native";
 import { ApolloProvider } from "@apollo/client";
 import { tokenVar, isLoggedInVar, TOKEN, client } from "./apollo";
@@ -68,6 +69,7 @@ function App() {
 
   return (
     <ApolloProvider client={client}>
+      <StatusBar style={colorScheme === "light" ? "dark" : "light"} />
       <ThemeProvider theme={colorScheme === "light" ? lightTheme : darkTheme}>
         <NavigationContainer
           theme={

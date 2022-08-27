@@ -11,10 +11,10 @@ const SDefaultAvatar = styled.View`
   align-items: center;
 `;
 
-const DefaultAvatar = () => {
+const DefaultAvatar = ({size}) => {
   return (
     <SDefaultAvatar>
-      <Ionicons name="person" size={140} />
+      <Ionicons name="person" size={size} />
     </SDefaultAvatar>
   );
 };

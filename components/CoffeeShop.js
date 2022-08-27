@@ -98,7 +98,7 @@ function CoffeeShop({ data }) {
               source={{ uri: data.user.avatarUrl }}
             />
           ) : (
-            <DefaultAvatar />
+            <DefaultAvatar size={32} />
           )}
           <Username>{data.user.username}</Username>
         </User>
